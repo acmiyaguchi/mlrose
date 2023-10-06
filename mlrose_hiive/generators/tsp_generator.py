@@ -9,7 +9,7 @@ from mlrose_hiive import TSPOpt
 
 class TSPGenerator:
     @staticmethod
-    def generate(seed, number_of_cities, area_width=250, area_height=250):
+    def generate(seed, number_of_cities, area_width=250, area_height=250, **kwargs):
         np.random.seed(seed)
         x_coords = np.random.randint(area_width, size=number_of_cities)
         y_coords = np.random.randint(area_height, size=number_of_cities)
@@ -32,7 +32,7 @@ class TSPGenerator:
 
             g.add_edge(a, b, length=int(round(distance)))
 
-        return TSPOpt(coords=coords, distances=distances, maximize=False, source_graph=g)
+        return TSPOpt(coords=coords, distances=distances, source_graph=g, **kwargs)
 
 
     @staticmethod
