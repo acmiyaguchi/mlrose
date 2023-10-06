@@ -50,7 +50,7 @@ class TSPOpt(DiscreteOpt):
             raise Exception("""At least one of fitness_fn, coords and"""
                             + """ distances must be specified.""")
         elif fitness_fn is None:
-            fitness_fn = TravellingSales(coords=coords, distances=distances)
+            fitness_fn = TravellingSales(coords=coords, distances=distances, maximize=maximize)
         self.distances = distances
         self.coords = coords
         if length is None:

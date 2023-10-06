@@ -59,7 +59,7 @@ class TravellingSales:
        object.
     """
 
-    def __init__(self, coords=None, distances=None):
+    def __init__(self, coords=None, distances=None, maximize=False):
 
         if coords is None and distances is None:
             raise Exception("""At least one of coords and distances must be"""
@@ -98,6 +98,7 @@ class TravellingSales:
         self.path_list = path_list
         self.dist_list = dist_list
         self.prob_type = 'tsp'
+        self.maximize = maximize
         if self.coords:
             self.calculate_fitness = self.__calculate_fitness_by_coords
         else:
@@ -134,7 +135,7 @@ class TravellingSales:
             raise Exception("""All elements of state must be less than"""
                             + """ len(state).""")
 
-        return self.calculate_fitness(state)
+        return self.calculate_fitness(state) * (-1 if self.maximize else 1)
 
     def __calculate_fitness_by_coords(self, state):
         # Calculate length of journey
