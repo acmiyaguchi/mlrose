@@ -3,8 +3,9 @@ import os
 
 def build_data_filename(output_directory, runner_name, experiment_name, df_name, x_param='', y_param='', ext=''):
     # ensure directory exists
+    subdir = f'{runner_name.lower()}__{experiment_name}'
     try:
-        os.makedirs(os.path.join(output_directory, experiment_name))
+        os.makedirs(os.path.join(output_directory, subdir))
     except:
         pass
 
@@ -16,5 +17,5 @@ def build_data_filename(output_directory, runner_name, experiment_name, df_name,
     if len(y_param) > 0 and not y_param[0] == '_' and not y_param[-1] == '_':
         y_param = f'_{y_param}'
     return os.path.join(output_directory,
-                        experiment_name,
-                        f'{runner_name.lower()}__{experiment_name}__{df_name}{x_param}{y_param}{ext}')
+                        subdir,
+                        f'{df_name}{x_param}{y_param}{ext}')
