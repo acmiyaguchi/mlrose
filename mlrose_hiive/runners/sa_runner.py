@@ -2,6 +2,7 @@ import mlrose_hiive
 from mlrose_hiive.decorators import short_name
 from mlrose_hiive.runners._runner_base import _RunnerBase
 import numpy as np
+from functools import partial
 
 """
 Example usage:
@@ -40,6 +41,8 @@ class SARunner(_RunnerBase):
         if all([np.isscalar(x) for x in temperature_list]):
             if decay_list is None:
                 decay_list = [mlrose_hiive.GeomDecay]
+            if all([np.isscalar(x) for x in decay_list]):
+                decay_list = [partial(mlrose_hiive.GeomDecay, decay=d) for d in decay_list]
             self.decay_list = decay_list
             self.use_raw_temp = False
 
