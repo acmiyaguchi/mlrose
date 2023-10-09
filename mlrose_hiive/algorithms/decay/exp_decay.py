@@ -91,9 +91,6 @@ class ExpDecay:
             info[f'{prefix}current_value'] = self.evaluate(t)
         return info
 
-    def __str__(self):
-        return str(self.init_temp)
-
     def __repr__(self):
         return f'{self.__class__.__name__}(init_temp={self.init_temp}, ' \
                f'exp_const={self.exp_const}, min_temp={self.min_temp})'

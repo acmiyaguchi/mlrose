@@ -62,9 +62,6 @@ class CustomSchedule:
             info[f'{prefix}current_value'] = self.evaluate(t)
         return info
 
-    def __str__(self):
-        return str(self.schedule)
-
     def __repr__(self):
         return f'{self.__class__.__name__}[{self.__dict__}]'
 
