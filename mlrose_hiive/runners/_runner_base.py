@@ -54,7 +54,7 @@ class _RunnerBase(ABC):
 
     def __init__(self, problem, experiment_name, seed, iteration_list, max_attempts=500,
                  generate_curves=True, output_directory=None, copy_zero_curve_fitness_from_first=False, replay=False,
-                 override_ctrl_c_handler=True,
+                 override_ctrl_c_handler=True, random_search=False, random_search_iterations=100,
                  **kwargs):
         self.problem = problem
         self.seed = seed
@@ -63,6 +63,8 @@ class _RunnerBase(ABC):
         self.generate_curves = generate_curves
         self.parameter_description_dict = {}
         self.override_ctrl_c_handler = override_ctrl_c_handler
+        self.random_search = random_search
+        self.random_search_iterations = random_search_iterations
 
         self.run_stats_df = None
         self.curves_df = None
@@ -151,10 +153,30 @@ class _RunnerBase(ABC):
 
     def run_experiment_(self, algorithm, **kwargs):
         self._setup()
-        # extract loop params
-        values = [([(k, v) for v in vs]) for (k, (n, vs)) in kwargs.items() if vs is not None]
+
         self.parameter_description_dict = {k: n for (k, (n, vs)) in kwargs.items() if vs is not None}
-        value_sets = list(it.product(*values))
+
+        if self.random_search:
+            value_sets = []
+            for _ in range(self.random_search_iterations):
+                # sample from each of the arguments
+                row = []
+                for k, (n, vs) in kwargs.items():
+                    if vs is None:
+                        continue
+                    # if a vs is a list, then sample from it
+                    if isinstance(vs, list):
+                        row.append((k, np.random.choice(vs)))
+                    # check if it's a scipy distribution and sample from it
+                    elif hasattr(vs, 'rvs'):
+                        row.append((k, vs.rvs()))
+                    else:
+                        raise Exception(f'Unknown type for random search: {vs} {kwargs}')
+                value_sets.append(row)
+        else:
+            # extract loop params
+            values = [([(k, v) for v in vs]) for (k, (n, vs)) in kwargs.items() if vs is not None]
+            value_sets = list(it.product(*values))
 
         logging.info(f'Running {self.dynamic_runner_name()}')
         run_start = time.perf_counter()

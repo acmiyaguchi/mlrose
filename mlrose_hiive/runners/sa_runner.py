@@ -32,19 +32,29 @@ Example usage:
 class SARunner(_RunnerBase):
 
     def __init__(self, problem, experiment_name, seed, iteration_list, temperature_list, decay_list=None,
-                 max_attempts=500, generate_curves=True, **kwargs):
+                 max_attempts=500, generate_curves=True, random_search=False, random_search_iterations=100, **kwargs):
         super().__init__(problem=problem, experiment_name=experiment_name, seed=seed, iteration_list=iteration_list,
                          max_attempts=max_attempts, generate_curves=generate_curves,
                          **kwargs)
         self.use_raw_temp = True
         self.temperature_list = temperature_list
-        if all([np.isscalar(x) for x in temperature_list]):
+        if isinstance(temperature_list, list) and all([np.isscalar(x) for x in temperature_list]):
             if decay_list is None:
                 decay_list = [mlrose_hiive.GeomDecay]
             if all([np.isscalar(x) for x in decay_list]):
                 decay_list = [partial(mlrose_hiive.GeomDecay, decay=d) for d in decay_list]
             self.decay_list = decay_list
             self.use_raw_temp = False
+        elif hasattr(temperature_list, "rvs") and hasattr(decay_list, "rvs"):
+            # let's randomly sample from the distribution and build up the list ahead of time
+            # we make sure that we're using grid search downstream because SA is otherwise super hacky
+            rows = []
+            for _ in range(random_search_iterations):
+                temp = temperature_list.rvs()
+                decay = decay_list.rvs()
+                rows.append(mlrose_hiive.GeomDecay(init_temp=temp, decay=decay))
+            self.temperature_list = rows
+            self.use_raw_temp = True
 
     def run(self):
         temperatures = self.temperature_list if self.use_raw_temp else [d(init_temp=t) for t in self.temperature_list
