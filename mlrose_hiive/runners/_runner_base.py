@@ -172,7 +172,9 @@ class _RunnerBase(ABC):
                         row.append((k, vs.rvs()))
                     else:
                         raise Exception(f'Unknown type for random search: {vs} {kwargs}')
-                value_sets.append(row)
+                # check if the row is already in the list
+                if row not in value_sets:
+                    value_sets.append(row)
         else:
             # extract loop params
             values = [([(k, v) for v in vs]) for (k, (n, vs)) in kwargs.items() if vs is not None]
