@@ -24,7 +24,7 @@ class QueensOpt(DiscreteOpt):
         self.length = length
 
         if fitness_fn is None:
-            fitness_fn = Queens()
+            fitness_fn = Queens(maximize=maximize)
 
         self.max_val = length
         crossover = UniformCrossOver(self) if crossover is None else crossover

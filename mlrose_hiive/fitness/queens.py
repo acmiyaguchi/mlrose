@@ -36,9 +36,10 @@ class Queens:
     optimization problems *only*.
     """
 
-    def __init__(self):
+    def __init__(self, maximize=False):
 
         self.prob_type = 'discrete'
+        self.maximize = maximize
 
     @staticmethod
     def shift(a, num, fill_value=np.nan):
@@ -84,7 +85,7 @@ class Queens:
 
         f_d = np.sum(state_shifts == state) // 2  # each diagonal piece is counted twice
         fitness = f_h + f_d
-        return fitness
+        return fitness * (-1 if self.maximize else 1)
 
     def get_prob_type(self):
         """ Return the problem type.
