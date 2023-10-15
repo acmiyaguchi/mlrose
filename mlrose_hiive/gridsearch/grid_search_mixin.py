@@ -4,20 +4,27 @@ import inspect
 
 
 class GridSearchMixin:
-    def __init__(self, scorer_method=None):
+    def __init__(self, scorer_method=None, random_search=False):
         self._scorer_method = skmt.balanced_accuracy_score if scorer_method is None else scorer_method
         self._params = inspect.signature(self._scorer_method)
         self._get_y_argmax = False
+        self._random_search = random_search
 
-    def _perform_grid_search(self, classifier, x_train, y_train, cv, parameters, n_jobs=1, verbose=False):
-        scorer = self.make_scorer()
-        search_results = skms.GridSearchCV(classifier,
-                                           parameters,
-                                           cv=cv,
-                                           scoring=scorer,
-                                           n_jobs=n_jobs,
-                                           return_train_score=True,
-                                           verbose=verbose)
+    def _perform_grid_search(self, classifier, x_train, y_train, cv, parameters, n_jobs=1, verbose=False, n_iter=100):
+        kwargs = dict(
+            cv=cv,
+            scoring=self.make_scorer(),
+            n_jobs=n_jobs,
+            return_train_score=True,
+            verbose=verbose
+        )
+        if self._random_search:
+            kwargs['n_iter'] = n_iter
+            search_method = skms.RandomizedSearchCV
+        else:
+            search_method = skms.GridSearchCV
+
+        search_results = search_method(classifier, parameters, **kwargs)
         search_results.fit(x_train, y_train)
         return search_results
 

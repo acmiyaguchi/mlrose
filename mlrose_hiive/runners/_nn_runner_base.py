@@ -28,6 +28,8 @@ class _NNRunnerBase(_RunnerBase, GridSearchMixin, ABC):
                  override_ctrl_c_handler=True,
                  n_jobs=1,
                  replay=False,
+                 random_search=False,
+                 random_search_iterations=100,
                  **kwargs):
         # call super on _RunnerBase
         _RunnerBase.__init__(self, problem=None,
@@ -41,7 +43,7 @@ class _NNRunnerBase(_RunnerBase, GridSearchMixin, ABC):
                              copy_zero_curve_fitness_from_first=True)
 
         # call super on GridSearchMixin
-        GridSearchMixin.__init__(self, scorer_method=grid_search_scorer_method)
+        GridSearchMixin.__init__(self, scorer_method=grid_search_scorer_method, random_search=random_search)
 
         self.classifier = None
 
@@ -57,6 +59,7 @@ class _NNRunnerBase(_RunnerBase, GridSearchMixin, ABC):
         self.verbose_grid_search = verbose_grid_search
         self.cv_results_df = None
         self.best_params = None
+        self.random_search_iterations = random_search_iterations
 
     def run(self):
         try:
@@ -73,6 +76,7 @@ class _NNRunnerBase(_RunnerBase, GridSearchMixin, ABC):
                                                x_train=self.x_train,
                                                y_train=self.y_train,
                                                cv=self.cv,
+                                               n_iter=self.random_search_iterations,
                                                n_jobs=self.n_jobs,
                                                verbose=self.verbose_grid_search)
                 run_end = time.perf_counter()
@@ -148,8 +152,8 @@ class _NNRunnerBase(_RunnerBase, GridSearchMixin, ABC):
 
         path = os.path.join(*filename_root.split('/')[:-1])
         filename_part = filename_root.split('/')[-1]
-        if path[0] != '/':
-            path = f'/{path}'
+        # if path[0] != '/':
+        #     path = f'/{path}'
         # find all data frames output by this runner
         filenames = [fn for fn in os.listdir(path) if (filename_part in fn
                                                        and fn.endswith('.p')
